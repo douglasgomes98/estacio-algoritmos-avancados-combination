@@ -21,17 +21,40 @@ function mountNumbers(input: string) {
   return numbers;
 }
 
-terminal.question(
-  "Enter some comma-separated numbers to generate a combination: ",
-  (numbersInput: string) => {
-    const numbersMap: number[] = mountNumbers(numbersInput);
+function generateCombinations(values: number[]) {
+  const numbersCombined: Set<string> = new Set();
 
-    console.log(numbersMap);
-
-    terminal.close();
+  if (values.length === 0 || values.length === 1) {
+    return numbersCombined;
   }
-);
 
-terminal.on("close", () => {
-  process.exit(0);
-});
+  if (values.length === 2) {
+    for (let indexX = 0; indexX < values.length; indexX++) {
+      for (let indexY = 0; indexY < values.length; indexY++) {
+        const element = `${values[indexX]}${values[indexY]}`;
+        numbersCombined.add(element);
+      }
+    }
+
+    return numbersCombined;
+  }
+}
+
+const numbersMap: number[] = mountNumbers("1,0,1");
+
+console.log(generateCombinations(numbersMap)?.values());
+
+// terminal.question(
+//   "Enter some comma-separated numbers to generate a combination: ",
+//   (numbersInput: string) => {
+//     const numbersMap: number[] = mountNumbers(numbersInput);
+
+//     console.log(generateCombinations(numbersMap)?.values());
+
+//     terminal.close();
+//   }
+// );
+
+// terminal.on("close", () => {
+//   process.exit(0);
+// });
