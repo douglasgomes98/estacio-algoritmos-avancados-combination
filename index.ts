@@ -6,55 +6,65 @@ const terminal = readline.createInterface({
   terminal: false,
 });
 
-function mountNumbers(input: string) {
-  const numbers: number[] = [];
+function mountBytesArray(combinations: number) {
+  const bytes = [1];
 
-  const inputValues = input.split(",");
-
-  inputValues.map(
-    (value) =>
-      (value === "1" || value === "0") &&
-      value.length === 1 &&
-      numbers.push(Number(value))
-  );
-
-  return numbers;
-}
-
-function generateCombinations(values: number[]) {
-  const numbersCombined: Set<string> = new Set();
-
-  if (values.length === 0 || values.length === 1) {
-    return numbersCombined;
+  for (let i = 1; i < combinations; i++) {
+    const newValue = bytes[i - 1] * 2;
+    bytes.push(newValue);
   }
 
-  if (values.length === 2) {
-    for (let indexX = 0; indexX < values.length; indexX++) {
-      for (let indexY = 0; indexY < values.length; indexY++) {
-        const element = `${values[indexX]}${values[indexY]}`;
-        numbersCombined.add(element);
+  return bytes;
+}
+
+function generateCombinations(combinations: number) {
+  const numbersCombined = new Set<string>();
+
+  if (combinations === 0) return numbersCombined;
+
+  const bytes = mountBytesArray(combinations);
+  const variations = Math.pow(2, combinations);
+
+  console.log(
+    `you chose to generate ${combinations} combinations, with that ${variations} variations will be generated.`
+  );
+
+  for (let i = variations - 1; i >= 0; i--) {
+    let currentVariation = i;
+    let numberGenerated = "";
+
+    for (let j = combinations; j > 0; j--) {
+      if (bytes[j - 1] <= currentVariation) {
+        currentVariation -= bytes[j - 1];
+        numberGenerated = numberGenerated.concat("1");
+      } else {
+        numberGenerated = numberGenerated.concat("0");
       }
     }
 
-    return numbersCombined;
+    numbersCombined.add(numberGenerated);
   }
+
+  return numbersCombined;
 }
 
-const numbersMap: number[] = mountNumbers("1,0,1");
+terminal.question(
+  "how many combinations do you want to generate? ",
+  (input: string) => {
+    try {
+      const combinations = Number(input);
+      if (!combinations) throw new Error();
 
-console.log(generateCombinations(numbersMap)?.values());
+      const combinationsGenerated = generateCombinations(combinations);
+      console.log(combinationsGenerated);
+    } catch (error) {
+      console.log("only numbers are accepted, please try again");
+    }
 
-// terminal.question(
-//   "Enter some comma-separated numbers to generate a combination: ",
-//   (numbersInput: string) => {
-//     const numbersMap: number[] = mountNumbers(numbersInput);
+    terminal.close();
+  }
+);
 
-//     console.log(generateCombinations(numbersMap)?.values());
-
-//     terminal.close();
-//   }
-// );
-
-// terminal.on("close", () => {
-//   process.exit(0);
-// });
+terminal.on("close", () => {
+  process.exit(0);
+});
